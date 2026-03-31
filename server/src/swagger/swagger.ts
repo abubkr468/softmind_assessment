@@ -6,7 +6,7 @@ const swaggerDefinition = {
     title: 'Softmind Assessment API',
     version: '1.0.0',
   },
-  servers: [{ url: 'http://localhost:5001' }],
+  servers: [{ url: process.env.SERVER_URL || 'http://localhost:5001' }],
 };
 
 const swaggerOptions = {
