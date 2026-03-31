@@ -1,0 +1,2 @@
+export { connectMongo } from './mongoose';
+
