@@ -9,10 +9,19 @@ import { authRoutes, cacheRoutes, taskRoutes, userRoutes } from './routes';
 
 export function createApp() {
   const app = express();
+  const allowedOrigins = (process.env.CLIENT_ORIGIN || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
   app.use(
     cors({
-      origin: process.env.CLIENT_ORIGIN,
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+      },
       credentials: true,
     })
   );
@@ -24,7 +33,6 @@ export function createApp() {
   });
 
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
   app.use('/api', cacheRoutes);
   app.use('/api', authRoutes);
   app.use('/api', userRoutes);
