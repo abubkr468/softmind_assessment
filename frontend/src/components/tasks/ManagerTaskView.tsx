@@ -1,14 +1,12 @@
 import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { assignTask, fetchTasks } from '../../api/tasks'
+import { useQuery } from '@tanstack/react-query'
+import { fetchTasks } from '../../api/tasks'
 import { fetchAssignableUsers } from '../../api/users'
 import { TaskFilters } from './TaskFilters'
 import { TaskTable } from './TaskTable'
-import { pushErrorToast, pushToast } from '../../utils/toast/notify'
 import type { Task } from '../../types/task'
 
 export function ManagerTaskView() {
-  const queryClient = useQueryClient()
 
   const [statusFilter, setStatusFilter] = useState<string>('All')
   const [priorityFilter, setPriorityFilter] = useState<string>('All')
@@ -29,21 +27,6 @@ export function ManagerTaskView() {
     queryFn: async () => {
       const all = await fetchAssignableUsers()
       return all.filter((u) => u.role === 'User')
-    },
-  })
-
-  const assignMutation = useMutation({
-    mutationFn: ({ taskId, assignedTo }: { taskId: string; assignedTo: string }) =>
-      assignTask(taskId, assignedTo),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['tasks'] })
-      pushToast({ title: 'Task updated', description: 'Assignment saved.' })
-    },
-    onError: (err: unknown) => {
-      pushErrorToast({
-        title: 'Assign failed',
-        description: err instanceof Error ? err.message : 'Could not assign',
-      })
     },
   })
 
