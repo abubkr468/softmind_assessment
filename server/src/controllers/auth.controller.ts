@@ -7,7 +7,7 @@ export async function signup(req: any, res: any) {
     const { name, email, password, role } = req.body || {};
     const result = await signupService({ name, email, password, role });
     res.cookie(AUTH_COOKIE_NAME, result.token, buildAuthCookieOptions());
-    return res.status(201).json({ user: result.user });
+    return res.status(201).json({ user: result.user, token: result.token });
   } catch (err) {
     const status = (err as any)?.statusCode || 400;
     return res.status(status).json({ message: (err as any)?.message || 'Signup failed' });
@@ -19,7 +19,7 @@ export async function login(req: any, res: any) {
     const { email, password } = req.body || {};
     const result = await loginService({ email, password });
     res.cookie(AUTH_COOKIE_NAME, result.token, buildAuthCookieOptions());
-    return res.json({ user: result.user });
+    return res.json({ user: result.user, token: result.token });
   } catch (err) {
     const status = (err as any)?.statusCode || 401;
     return res.status(status).json({ message: (err as any)?.message || 'Login failed' });

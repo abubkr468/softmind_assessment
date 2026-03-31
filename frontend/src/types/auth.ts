@@ -7,6 +7,7 @@ export type AuthUser = {
 
 export type AuthResponse = {
   user: AuthUser
+  token: string
 }
 
 export const USER_ROLES = ['User', 'Manager', 'Admin'] as const

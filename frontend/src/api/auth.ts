@@ -1,5 +1,5 @@
 import { API_BASE_URL } from '../config/env'
-import { jsonFetch, parseJson } from './client'
+import { clearAccessToken, getAccessToken, jsonFetch, parseJson, setAccessToken } from './client'
 import type { AuthResponse, AuthUser } from '../types/auth'
 
 export type LoginPayload = {
@@ -15,27 +15,44 @@ export type SignupPayload = {
 }
 
 export async function loginRequest(body: LoginPayload): Promise<AuthResponse> {
-  return jsonFetch<AuthResponse>('/auth/login', {
+  const data = await jsonFetch<AuthResponse>('/auth/login', {
     method: 'POST',
     body: JSON.stringify(body),
   })
+  setAccessToken(data.token)
+  return data
 }
 
 export async function signupRequest(body: SignupPayload): Promise<AuthResponse> {
-  return jsonFetch<AuthResponse>('/auth/signup', {
+  const data = await jsonFetch<AuthResponse>('/auth/signup', {
     method: 'POST',
     body: JSON.stringify(body),
   })
+  setAccessToken(data.token)
+  return data
 }
 
 export async function fetchSession(): Promise<{ user: AuthUser } | null> {
-  const res = await fetch(`${API_BASE_URL}/auth/me`, { credentials: 'include' })
-  if (res.status === 401) return null
+  const token = getAccessToken()
+  const headers = new Headers()
+  if (token) headers.set('Authorization', `Bearer ${token}`)
+  const res = await fetch(`${API_BASE_URL}/auth/me`, {
+    credentials: 'include',
+    headers,
+  })
+  if (res.status === 401) {
+    clearAccessToken()
+    return null
+  }
   const data = await parseJson(res)
   if (!res.ok) return null
   return data as { user: AuthUser }
 }
 
 export async function logoutRequest(): Promise<void> {
-  await jsonFetch<{ message: string }>('/auth/logout', { method: 'POST' })
+  try {
+    await jsonFetch<{ message: string }>('/auth/logout', { method: 'POST' })
+  } finally {
+    clearAccessToken()
+  }
 }
