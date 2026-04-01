@@ -1,12 +1,10 @@
 import { login as loginService, signup as signupService } from '../services/auth.service';
-import { AUTH_COOKIE_NAME, buildAuthCookieOptions } from '../utils/auth-cookie';
 import { User } from '../models';
 
 export async function signup(req: any, res: any) {
   try {
     const { name, email, password, role } = req.body || {};
     const result = await signupService({ name, email, password, role });
-    res.cookie(AUTH_COOKIE_NAME, result.token, buildAuthCookieOptions());
     return res.status(201).json({ user: result.user, token: result.token });
   } catch (err) {
     const status = (err as any)?.statusCode || 400;
@@ -18,7 +16,6 @@ export async function login(req: any, res: any) {
   try {
     const { email, password } = req.body || {};
     const result = await loginService({ email, password });
-    res.cookie(AUTH_COOKIE_NAME, result.token, buildAuthCookieOptions());
     return res.json({ user: result.user, token: result.token });
   } catch (err) {
     const status = (err as any)?.statusCode || 401;
@@ -27,7 +24,6 @@ export async function login(req: any, res: any) {
 }
 
 export async function logout(req: any, res: any) {
-  res.clearCookie(AUTH_COOKIE_NAME, { path: '/' });
   return res.json({ message: 'Logged out' });
 }
 

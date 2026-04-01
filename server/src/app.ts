@@ -1,5 +1,4 @@
 import express from 'express';
-import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
 import swaggerUi from 'swagger-ui-express';
@@ -25,7 +24,6 @@ export function createApp() {
       credentials: true,
     })
   );
-  app.use(cookieParser());
   app.use(express.json());
 
   app.get('/', (req, res) => {
